@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Shortcut — Next-Gen Video Editor (CapCut Redesign)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+            mono: ['"JetBrains Mono"', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/src/style.css" />
+</head>
+<body class="bg-[#0b0c10] text-[#e0e2ec] font-sans antialiased overflow-hidden select-none h-screen flex flex-col">
+  
+  <!-- APP HEADER / TOPBAR -->
+  <header class="h-14 border-b border-[#1f222e] bg-[#10121a]/95 backdrop-blur px-4 flex items-center justify-between shrink-0 z-30">
+    <!-- Brand & Project Info -->
+    <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-[#00f2fe] to-[#4facfe] flex items-center justify-center shadow-lg shadow-[#00f2fe]/20">
+          <svg class="w-5 h-5 text-black" viewBox="0 0 24 24" fill="currentColor">
+            <path d="M5.5 3.5l13 8.5-13 8.5v-17z" />
+          </svg>
+        </div>
+        <div class="flex flex-col">
+          <span class="font-extrabold text-base tracking-wider bg-gradient-to-r from-white via-slate-100 to-cyan-300 bg-clip-text text-transparent">SHORTCUT</span>
+          <span class="text-[10px] text-cyan-400 font-semibold tracking-wider uppercase -mt-1">CapCut Redesign • v2.0</span>
+        </div>
+      </div>
+
+      <div class="h-5 w-px bg-[#262a38] mx-1"></div>
+
+      <!-- Project Name Editable -->
+      <div class="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-[#161924] border border-[#232838] hover:border-[#38415c] transition">
+        <span class="text-xs text-slate-400">Project:</span>
+        <input id="project-title" type="text" value="Viral_Short_01" class="bg-transparent text-xs text-white font-medium focus:outline-none w-28" />
+        <span class="text-[10px] text-emerald-400 font-mono px-1 py-0.5 rounded bg-emerald-950/60 border border-emerald-800/40">Auto-saved</span>
+      </div>
+    </div>
+
+    <!-- Center Canvas Controls & Mode Selectors -->
+    <div class="flex items-center gap-2">
+      <!-- Aspect Ratio Switcher -->
+      <div class="flex items-center bg-[#161924] border border-[#232838] rounded-lg p-0.5 text-xs font-medium">
+        <button id="ratio-16-9" class="ratio-btn px-2.5 py-1 rounded text-slate-400 hover:text-white transition flex items-center gap-1.5" data-ratio="16:9">
+          <span class="w-3.5 h-2 border border-current rounded-sm"></span>
+          <span>16:9</span>
+        </button>
+        <button id="ratio-9-16" class="ratio-btn px-2.5 py-1 rounded bg-[#00f2fe] text-black font-semibold transition flex items-center gap-1.5" data-ratio="9:16">
+          <span class="w-2 h-3.5 border border-current rounded-sm"></span>
+          <span>9:16 Shorts</span>
+        </button>
+        <button id="ratio-1-1" class="ratio-btn px-2.5 py-1 rounded text-slate-400 hover:text-white transition flex items-center gap-1.5" data-ratio="1:1">
+          <span class="w-2.5 h-2.5 border border-current rounded-sm"></span>
+          <span>1:1</span>
+        </button>
+      </div>
+
+      <!-- Safe-Area Guide Toggle -->
+      <button id="toggle-safe-zone" class="px-2.5 py-1 rounded-lg bg-[#161924] border border-[#232838] hover:border-[#38415c] text-xs text-slate-300 flex items-center gap-1.5 transition">
+        <svg class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" stroke-dasharray="2 2" />
+          <path d="M9 3v18M15 3v18M3 9h18M3 15h18" opacity="0.3"/>
+        </svg>
+        <span>TikTok Guides</span>
+        <span id="safe-zone-badge" class="w-2 h-2 rounded-full bg-emerald-400"></span>
+      </button>
+
+      <!-- History Undo / Redo -->
+      <div class="flex items-center bg-[#161924] border border-[#232838] rounded-lg p-0.5">
+        <button id="undo-btn" title="Undo (Ctrl+Z)" class="p-1.5 rounded hover:bg-[#232838] text-slate-300 hover:text-white transition">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7v6h6M21 17a9 9 0 00-9-9 9 9 0 00-6 2.3L3 13"/></svg>
+        </button>
+        <button id="redo-btn" title="Redo (Ctrl+Y)" class="p-1.5 rounded hover:bg-[#232838] text-slate-300 hover:text-white transition">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 7v6h-6M3 17a9 9 0 019-9 9 9 0 016 2.3L21 13"/></svg>
+        </button>
+      </div>
+    </div>
+
+    <!-- Right Header Actions (Export & Clean CapCut badge) -->
+    <div class="flex items-center gap-3">
+      <div class="hidden md:flex items-center gap-1.5 text-xs text-slate-400 bg-[#161924]/60 px-2.5 py-1 rounded-md border border-[#232838]">
+        <span class="w-2 h-2 rounded-full bg-cyan-400 animate-pulse"></span>
+        <span>Zero Watermarks • 4K Unlocked</span>
+      </div>
+
+      <!-- Export Modal Button -->
+      <button id="export-modal-btn" class="px-4 py-1.5 rounded-lg bg-gradient-to-r from-[#00f2fe] to-[#4facfe] text-black font-bold text-xs tracking-wide hover:brightness-110 active:scale-95 transition shadow-lg shadow-[#00f2fe]/20 flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+        </svg>
+        <span>Export 4K</span>
+      </button>
+    </div>
+  </header>
+
+  <!-- MAIN WORKSPACE: 3-PANEL LAYOUT (Assets Drawer | Canvas Player | Inspector) -->
+  <main class="flex-1 flex overflow-hidden">
+    
+    <!-- ACTIVITY BAR (Far Left Tab Icons) -->
+    <nav class="w-16 bg-[#10121a] border-r border-[#1f222e] flex flex-col items-center py-3 gap-2 shrink-0 z-20">
+      <button class="activity-tab active flex flex-col items-center justify-center w-12 h-12 rounded-xl text-cyan-400 bg-[#191d2a] border border-cyan-500/20 transition" data-panel="media">
+        <svg class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+        <span class="text-[9px] font-medium">Media</span>
+      </button>
+
+      <button class="activity-tab flex flex-col items-center justify-center w-12 h-12 rounded-xl text-slate-400 hover:text-white hover:bg-[#161924] transition" data-panel="text">
+        <svg class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+        <span class="text-[9px] font-medium">Text</span>
+      </button>
+
+      <button class="activity-tab flex flex-col items-center justify-center w-12 h-12 rounded-xl text-slate-400 hover:text-white hover:bg-[#161924] transition" data-panel="effects">
+        <svg class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg>
+        <span class="text-[9px] font-medium">Effects</span>
+      </button>
+
+      <button class="activity-tab flex flex-col items-center justify-center w-12 h-12 rounded-xl text-slate-400 hover:text-white hover:bg-[#161924] transition" data-panel="audio">
+        <svg class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+        <span class="text-[9px] font-medium">Audio</span>
+      </button>
+
+      <button class="activity-tab flex flex-col items-center justify-center w-12 h-12 rounded-xl text-slate-400 hover:text-white hover:bg-[#161924] transition" data-panel="ai">
+        <div class="relative">
+          <svg class="w-5 h-5 mb-0.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="10" rx="2"/><circle cx="12" cy="5" r="2"/><path d="M12 7v4"/><line x1="8" y1="16" x2="8" y2="16"/><line x1="16" y1="16" x2="16" y2="16"/></svg>
+          <span class="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-cyan-400 animate-ping"></span>
+        </div>
+        <span class="text-[9px] font-medium">AI Tools</span>
+      </button>
+    </nav>
+
+    <!-- LEFT DRAWER CONTENT (Asset library & presets) -->
+    <section id="left-drawer" class="w-72 bg-[#12141c] border-r border-[#1f222e] flex flex-col shrink-0 overflow-y-auto">
+      
+      <!-- Panel: Media -->
+      <div id="panel-media" class="drawer-panel p-4 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xs font-bold text-white tracking-wider uppercase">Project Assets</h2>
+          <span class="text-[10px] text-slate-400 font-mono">3 Items</span>
+        </div>
+
+        <!-- Dropzone / Import -->
+        <label class="border border-dashed border-[#2d3345] hover:border-cyan-400 rounded-xl p-4 flex flex-col items-center justify-center gap-2 cursor-pointer bg-[#161924]/60 hover:bg-[#161924] transition group">
+          <input id="media-file-input" type="file" accept="video/*,audio/*,image/*" class="hidden" multiple />
+          <div class="w-8 h-8 rounded-full bg-[#202538] flex items-center justify-center text-cyan-400 group-hover:scale-110 transition">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
+          </div>
+          <div class="text-center">
+            <span class="text-xs font-semibold text-slate-200">Import Media</span>
+            <p class="text-[10px] text-slate-500">MP4, WebM, MP3, PNG, JPG</p>
+          </div>
+        </label>
+
+        <!-- Sample Stock Media Items -->
+        <div class="flex flex-col gap-2">
+          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Sample Footage</span>
+          
+          <div class="media-card group p-2 rounded-lg bg-[#181b26] hover:bg-[#202534] border border-[#232838] cursor-pointer flex items-center gap-3 transition" data-media-id="sample-1">
+            <div class="w-14 h-10 rounded bg-[#2a2f42] relative overflow-hidden flex items-center justify-center shrink-0">
+              <span class="text-[10px] text-cyan-300 font-mono">B-ROLL</span>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-1">
+                <span class="text-[9px] font-mono text-white">00:08</span>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-semibold text-slate-200 truncate group-hover:text-cyan-400 transition">Cyberpunk City Night</div>
+              <div class="text-[10px] text-slate-500">1080p • 60 FPS • Video</div>
+            </div>
+            <button class="add-clip-btn opacity-0 group-hover:opacity-100 p-1 rounded bg-cyan-400 text-black hover:scale-105 transition" title="Add to Timeline">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+
+          <div class="media-card group p-2 rounded-lg bg-[#181b26] hover:bg-[#202534] border border-[#232838] cursor-pointer flex items-center gap-3 transition" data-media-id="sample-2">
+            <div class="w-14 h-10 rounded bg-[#2a2f42] relative overflow-hidden flex items-center justify-center shrink-0">
+              <span class="text-[10px] text-amber-300 font-mono">DRONE</span>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-1">
+                <span class="text-[9px] font-mono text-white">00:06</span>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-semibold text-slate-200 truncate group-hover:text-cyan-400 transition">Ocean Sunset Drone</div>
+              <div class="text-[10px] text-slate-500">4K • 30 FPS • Video</div>
+            </div>
+            <button class="add-clip-btn opacity-0 group-hover:opacity-100 p-1 rounded bg-cyan-400 text-black hover:scale-105 transition" title="Add to Timeline">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+
+          <div class="media-card group p-2 rounded-lg bg-[#181b26] hover:bg-[#202534] border border-[#232838] cursor-pointer flex items-center gap-3 transition" data-media-id="sample-3">
+            <div class="w-14 h-10 rounded bg-[#2a2f42] relative overflow-hidden flex items-center justify-center shrink-0">
+              <span class="text-[10px] text-emerald-300 font-mono">TALK</span>
+              <div class="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-1">
+                <span class="text-[9px] font-mono text-white">00:05</span>
+              </div>
+            </div>
+            <div class="flex-1 min-w-0">
+              <div class="text-xs font-semibold text-slate-200 truncate group-hover:text-cyan-400 transition">Tech Creator Talking Head</div>
+              <div class="text-[10px] text-slate-500">1080p • 60 FPS • Video</div>
+            </div>
+            <button class="add-clip-btn opacity-0 group-hover:opacity-100 p-1 rounded bg-cyan-400 text-black hover:scale-105 transition" title="Add to Timeline">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Text & Viral Subtitles -->
+      <div id="panel-text" class="drawer-panel p-4 flex-col gap-4 hidden">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xs font-bold text-white tracking-wider uppercase">Viral Subtitles & Titles</h2>
+          <span class="text-[10px] text-cyan-400 font-medium">CapCut Presets</span>
+        </div>
+
+        <button id="add-text-custom-btn" class="w-full py-2 rounded-lg bg-[#1f2434] hover:bg-[#272d42] border border-[#2b334a] text-xs font-semibold text-white transition flex items-center justify-center gap-2">
+          <svg class="w-3.5 h-3.5 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          <span>Add Custom Text</span>
+        </button>
+
+        <div class="flex flex-col gap-2.5">
+          <span class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Trending TikTok Styles</span>
+
+          <!-- Hormozi Punch Preset -->
+          <div class="text-preset-card p-3 rounded-xl bg-[#171a25] border border-[#232838] hover:border-amber-400/50 cursor-pointer transition flex flex-col gap-1.5" data-preset="hormozi">
+            <div class="h-10 rounded bg-[#10121a] flex items-center justify-center">
+              <span class="font-extrabold text-base tracking-wider text-yellow-400 drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)] uppercase">HORMOZI PUNCH</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-300 font-medium">High-Retention Subtitle</span>
+              <span class="text-cyan-400 font-semibold text-[10px]">+ Apply</span>
+            </div>
+          </div>
+
+          <!-- Karaoke Cyan Glow -->
+          <div class="text-preset-card p-3 rounded-xl bg-[#171a25] border border-[#232838] hover:border-cyan-400/50 cursor-pointer transition flex flex-col gap-1.5" data-preset="cyan-glow">
+            <div class="h-10 rounded bg-[#10121a] flex items-center justify-center">
+              <span class="font-bold text-sm tracking-wide text-cyan-300 drop-shadow-[0_0_8px_#00f2fe]">KARAOKE WORD GLOW</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-300 font-medium">Bouncing Word Highlight</span>
+              <span class="text-cyan-400 font-semibold text-[10px]">+ Apply</span>
+            </div>
+          </div>
+
+          <!-- Minimalist Frosted Pill -->
+          <div class="text-preset-card p-3 rounded-xl bg-[#171a25] border border-[#232838] hover:border-slate-400 cursor-pointer transition flex flex-col gap-1.5" data-preset="minimal-pill">
+            <div class="h-10 rounded bg-[#10121a] flex items-center justify-center">
+              <span class="px-2 py-0.5 rounded-full bg-white/20 backdrop-blur text-white text-xs font-semibold">Clean Aesthetic Pill</span>
+            </div>
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-300 font-medium">Vlog & Aesthetic Shorts</span>
+              <span class="text-cyan-400 font-semibold text-[10px]">+ Apply</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Effects & Filters -->
+      <div id="panel-effects" class="drawer-panel p-4 flex-col gap-4 hidden">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xs font-bold text-white tracking-wider uppercase">Visual Effects & LUTs</h2>
+          <span class="text-[10px] text-cyan-400 font-mono">100% Free</span>
+        </div>
+
+        <div class="grid grid-cols-2 gap-2">
+          <div class="fx-card p-2.5 rounded-xl bg-[#181b26] border border-[#232838] hover:border-cyan-400 cursor-pointer flex flex-col items-center gap-1.5 transition text-center" data-fx="teal-orange">
+            <div class="w-full h-12 rounded bg-gradient-to-r from-teal-500 to-orange-500 flex items-center justify-center text-[10px] font-bold text-black">Teal / Orange</div>
+            <span class="text-xs font-medium text-slate-200">Cinematic LUT</span>
+          </div>
+
+          <div class="fx-card p-2.5 rounded-xl bg-[#181b26] border border-[#232838] hover:border-cyan-400 cursor-pointer flex flex-col items-center gap-1.5 transition text-center" data-fx="vhs">
+            <div class="w-full h-12 rounded bg-[#0e1018] border border-fuchsia-500/40 flex items-center justify-center text-[10px] font-bold text-fuchsia-400">VHS GLITCH</div>
+            <span class="text-xs font-medium text-slate-200">Retro Scanlines</span>
+          </div>
+
+          <div class="fx-card p-2.5 rounded-xl bg-[#181b26] border border-[#232838] hover:border-cyan-400 cursor-pointer flex flex-col items-center gap-1.5 transition text-center" data-fx="noir">
+            <div class="w-full h-12 rounded bg-gradient-to-b from-neutral-800 to-black flex items-center justify-center text-[10px] font-bold text-white">NOIR B&W</div>
+            <span class="text-xs font-medium text-slate-200">Mono Contrast</span>
+          </div>
+
+          <div class="fx-card p-2.5 rounded-xl bg-[#181b26] border border-[#232838] hover:border-cyan-400 cursor-pointer flex flex-col items-center gap-1.5 transition text-center" data-fx="glow">
+            <div class="w-full h-12 rounded bg-[#101424] flex items-center justify-center text-[10px] font-bold text-cyan-300 drop-shadow-[0_0_6px_#00f2fe]">NEON GLOW</div>
+            <span class="text-xs font-medium text-slate-200">Bloom Pulse</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: Audio & SFX -->
+      <div id="panel-audio" class="drawer-panel p-4 flex-col gap-4 hidden">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xs font-bold text-white tracking-wider uppercase">Audio & Sound FX</h2>
+          <span class="text-[10px] text-slate-400 font-mono">Royalty Free</span>
+        </div>
+
+        <div class="flex flex-col gap-2">
+          <div class="audio-card p-2.5 rounded-lg bg-[#181b26] border border-[#232838] hover:bg-[#202534] cursor-pointer flex items-center justify-between transition" data-audio-id="beat-1">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-cyan-950/80 border border-cyan-800/40 flex items-center justify-center text-cyan-400">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs font-semibold text-slate-200">Phonk Viral Beat</span>
+                <span class="text-[10px] text-slate-500">128 BPM • 00:20</span>
+              </div>
+            </div>
+            <span class="text-[10px] text-cyan-400 font-bold px-2 py-1 rounded bg-cyan-950/60">+ Track</span>
+          </div>
+
+          <div class="audio-card p-2.5 rounded-lg bg-[#181b26] border border-[#232838] hover:bg-[#202534] cursor-pointer flex items-center justify-between transition" data-audio-id="beat-2">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-emerald-950/80 border border-emerald-800/40 flex items-center justify-center text-emerald-400">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </div>
+              <div class="flex flex-col">
+                <span class="text-xs font-semibold text-slate-200">Lo-Fi Chill Hop</span>
+                <span class="text-[10px] text-slate-500">84 BPM • 00:30</span>
+              </div>
+            </div>
+            <span class="text-[10px] text-cyan-400 font-bold px-2 py-1 rounded bg-cyan-950/60">+ Track</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Panel: AI Studio Tools -->
+      <div id="panel-ai" class="drawer-panel p-4 flex-col gap-4 hidden">
+        <div class="flex items-center justify-between">
+          <h2 class="text-xs font-bold text-white tracking-wider uppercase">AI Superpowers</h2>
+          <span class="text-[10px] text-cyan-400 font-bold px-1.5 py-0.5 rounded bg-cyan-950/80 border border-cyan-800/40">Local AI</span>
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <!-- Auto-Captions -->
+          <div class="p-3 rounded-xl bg-gradient-to-br from-[#161b2b] to-[#141622] border border-cyan-500/30 flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-md bg-cyan-400/20 text-cyan-400 flex items-center justify-center">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+              </div>
+              <span class="text-xs font-bold text-white">AI Auto-Captions</span>
+            </div>
+            <p class="text-[10px] text-slate-400">Transcribe voice into synchronized viral animated subtitles with 99.2% accuracy.</p>
+            <button id="ai-generate-captions-btn" class="w-full py-1.5 rounded-lg bg-cyan-400 hover:bg-cyan-300 text-black font-bold text-xs transition flex items-center justify-center gap-1.5">
+              <span>Generate Captions</span>
+            </button>
+          </div>
+
+          <!-- Silence Gap Remover -->
+          <div class="p-3 rounded-xl bg-[#161926] border border-[#252b3d] flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-md bg-amber-400/20 text-amber-400 flex items-center justify-center">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M6 9H2v6h4l5 5V4L6 9z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>
+              </div>
+              <span class="text-xs font-bold text-white">Silence Remover</span>
+            </div>
+            <p class="text-[10px] text-slate-400">Instantly detects dead pauses (>0.4s) and cuts them for high-velocity retention.</p>
+            <button id="ai-silence-cut-btn" class="w-full py-1.5 rounded-lg bg-[#22283a] hover:bg-[#2b334a] text-slate-200 font-semibold text-xs border border-[#303850] transition">
+              Auto-Cut Silences
+            </button>
+          </div>
+
+          <!-- Vocal Isolator / Denoise -->
+          <div class="p-3 rounded-xl bg-[#161926] border border-[#252b3d] flex flex-col gap-2">
+            <div class="flex items-center gap-2">
+              <div class="w-6 h-6 rounded-md bg-emerald-400/20 text-emerald-400 flex items-center justify-center">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+              </div>
+              <span class="text-xs font-bold text-white">Voice Enhance & Denoise</span>
+            </div>
+            <p class="text-[10px] text-slate-400">Eliminate room echo, HVAC hum, and keyboard clicks with neural voice isolation.</p>
+            <button id="ai-enhance-voice-btn" class="w-full py-1.5 rounded-lg bg-[#22283a] hover:bg-[#2b334a] text-slate-200 font-semibold text-xs border border-[#303850] transition">
+              Clean Audio
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CENTER CANVAS VIEWPORT -->
+    <section class="flex-1 bg-[#0b0c10] flex flex-col relative overflow-hidden">
+      
+      <!-- Video Player Canvas Area -->
+      <div class="flex-1 flex items-center justify-center p-4 relative overflow-hidden" id="canvas-container">
+        
+        <!-- Video Canvas Wrapper with dynamic aspect ratio -->
+        <div id="player-frame" class="relative rounded-xl overflow-hidden shadow-2xl shadow-black/80 border border-[#262b3c] bg-black flex items-center justify-center transition-all duration-300" style="width: 337px; height: 600px;">
+          
+          <!-- Underlying Canvas for Compositing & Rendering -->
+          <canvas id="video-canvas" width="1080" height="1920" class="w-full h-full object-contain pointer-events-auto"></canvas>
+
+          <!-- Safe Area Overlay (Simulates TikTok / Instagram Reels UI) -->
+          <div id="safe-area-overlay" class="absolute inset-0 pointer-events-none flex flex-col justify-between p-4 z-10 transition-opacity duration-200">
+            <!-- Top Safe Area (Username / Following / For You) -->
+            <div class="flex items-center justify-center gap-4 pt-2">
+              <span class="text-xs font-bold text-white/50 tracking-wide drop-shadow">Following</span>
+              <span class="text-xs font-bold text-white drop-shadow border-b-2 border-white pb-0.5">For You</span>
+            </div>
+
+            <!-- Bottom & Right Platform UI (Safe Zone Boundary Marker) -->
+            <div class="flex items-end justify-between pb-6">
+              <!-- Left Caption & Audio Zone -->
+              <div class="flex flex-col gap-1 max-w-[70%]">
+                <span class="text-xs font-bold text-white drop-shadow">@shortcut_creator</span>
+                <span class="text-[11px] text-white/80 drop-shadow line-clamp-2">Next-Gen CapCut Redesign powered by web tech 🚀 #videoeditor #shortcut</span>
+                <div class="flex items-center gap-1.5 text-[10px] text-white/70">
+                  <svg class="w-3 h-3 animate-spin text-white" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="10"/></svg>
+                  <span>Original Sound • Trending Audio</span>
+                </div>
+              </div>
+
+              <!-- Right Action Column (Heart, Comments, Bookmark, Share, Profile) -->
+              <div class="flex flex-col items-center gap-3">
+                <div class="w-9 h-9 rounded-full border-2 border-white bg-gradient-to-tr from-cyan-400 to-blue-600 flex items-center justify-center text-[10px] font-bold text-black">SC</div>
+                <div class="flex flex-col items-center">
+                  <svg class="w-6 h-6 text-white drop-shadow" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+                  <span class="text-[9px] font-bold text-white">428K</span>
+                </div>
+                <div class="flex flex-col items-center">
+                  <svg class="w-6 h-6 text-white drop-shadow" viewBox="0 0 24 24" fill="currentColor"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                  <span class="text-[9px] font-bold text-white">8.4K</span>
+                </div>
+                <div class="flex flex-col items-center">
+                  <svg class="w-6 h-6 text-white drop-shadow" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                  <span class="text-[9px] font-bold text-white">52K</span>
+                </div>
+                <div class="w-7 h-7 rounded-full bg-slate-900 border border-white/50 flex items-center justify-center">
+                  <span class="text-[8px] text-white">🎵</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Danger Zone Outline -->
+            <div class="absolute inset-4 border border-dashed border-red-500/40 rounded-lg pointer-events-none flex items-start justify-end p-1">
+              <span class="text-[9px] font-mono text-red-400 bg-black/60 px-1 rounded">SAFE BOUNDARY</span>
+            </div>
+          </div>
+
+          <!-- Dynamic Interactive Transform Gizmo (Selection Box) -->
+          <div id="transform-gizmo" class="absolute pointer-events-none border-2 border-cyan-400 shadow-lg shadow-cyan-500/20 rounded hidden z-20">
+            <div class="gizmo-handle -top-1.5 -left-1.5"></div>
+            <div class="gizmo-handle -top-1.5 -right-1.5"></div>
+            <div class="gizmo-handle -bottom-1.5 -left-1.5"></div>
+            <div class="gizmo-handle -bottom-1.5 -right-1.5"></div>
+            <div class="gizmo-handle -top-4 left-1/2 -translate-x-1/2 bg-amber-400 cursor-grab" title="Rotate"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Video Transport Controls (Scrub bar & Playhead Timecode) -->
+      <div class="h-12 bg-[#10121a] border-t border-[#1f222e] px-4 flex items-center justify-between shrink-0 z-20">
+        <!-- Timecode Display -->
+        <div class="flex items-center gap-2 font-mono text-xs">
+          <span id="current-timecode" class="text-cyan-400 font-bold">00:00:02:15</span>
+          <span class="text-slate-600">/</span>
+          <span id="total-timecode" class="text-slate-400">00:00:15:00</span>
+        </div>
+
+        <!-- Center Player Transport Buttons -->
+        <div class="flex items-center gap-3">
+          <!-- Step Back 1 Frame -->
+          <button id="step-back-btn" title="Step Back 1 Frame (Left Arrow)" class="p-1.5 rounded-lg hover:bg-[#1e2334] text-slate-300 hover:text-white transition">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="11 17 6 12 11 7"/><polyline points="18 17 13 12 18 7"/></svg>
+          </button>
+
+          <!-- Play / Pause -->
+          <button id="play-pause-btn" title="Play / Pause (Space)" class="w-9 h-9 rounded-full bg-white hover:bg-cyan-300 text-black flex items-center justify-center transition active:scale-95 shadow-lg shadow-white/10">
+            <svg id="play-icon" class="w-4 h-4 ml-0.5" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+            <svg id="pause-icon" class="w-4 h-4 hidden" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg>
+          </button>
+
+          <!-- Step Forward 1 Frame -->
+          <button id="step-fwd-btn" title="Step Forward 1 Frame (Right Arrow)" class="p-1.5 rounded-lg hover:bg-[#1e2334] text-slate-300 hover:text-white transition">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+          </button>
+        </div>
+
+        <!-- Right Transport Controls (Volume, Loop, Fullscreen) -->
+        <div class="flex items-center gap-2">
+          <!-- Master Mute Toggle -->
+          <button id="toggle-mute-btn" class="p-1.5 rounded-lg hover:bg-[#1e2334] text-slate-300 hover:text-white transition">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>
+          </button>
+
+          <!-- Loop Mode -->
+          <button id="toggle-loop-btn" class="p-1.5 rounded-lg bg-[#1e2334] text-cyan-400 transition" title="Loop Playback">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14M7 23l-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
+          </button>
+
+          <!-- Fullscreen -->
+          <button id="fullscreen-btn" class="p-1.5 rounded-lg hover:bg-[#1e2334] text-slate-300 hover:text-white transition" title="Fullscreen">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 3H5a2 2 0 0 0-2 2v3m18 0V5a2 2 0 0 0-2-2h-3m0 18h3a2 2 0 0 0 2-2v-3M3 16v3a2 2 0 0 0 2 2h3"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- RIGHT INSPECTOR PANEL (Clip properties, grading, transforms) -->
+    <aside id="inspector-panel" class="w-72 bg-[#12141c] border-l border-[#1f222e] flex flex-col shrink-0 overflow-y-auto">
+      
+      <!-- Inspector Header -->
+      <div class="h-11 border-b border-[#1f222e] px-4 flex items-center justify-between shrink-0">
+        <span class="text-xs font-bold text-white tracking-wider uppercase">Clip Inspector</span>
+        <span id="active-clip-badge" class="text-[10px] text-cyan-400 font-mono px-2 py-0.5 rounded bg-cyan-950/80 border border-cyan-800/40">V1: Cyberpunk</span>
+      </div>
+
+      <!-- Inspector Tabs (Transform | Color | Audio | Speed) -->
+      <div class="flex border-b border-[#1f222e] text-[11px] font-semibold">
+        <button class="inspector-tab active flex-1 py-2 text-center text-cyan-400 border-b-2 border-cyan-400" data-tab="transform">Transform</button>
+        <button class="inspector-tab flex-1 py-2 text-center text-slate-400 hover:text-white" data-tab="color">Color LUT</button>
+        <button class="inspector-tab flex-1 py-2 text-center text-slate-400 hover:text-white" data-tab="speed">Speed & FX</button>
+      </div>
+
+      <!-- Tab Content: Transform -->
+      <div id="inspector-tab-transform" class="inspector-content p-4 flex flex-col gap-4">
+        <!-- Scale -->
+        <div class="flex flex-col gap-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-300 font-medium">Scale</span>
+            <span id="scale-val" class="font-mono text-cyan-400 font-semibold">100%</span>
+          </div>
+          <input id="slider-scale" type="range" min="20" max="250" value="100" class="slider-cyan" />
+        </div>
+
+        <!-- Position X & Y -->
+        <div class="grid grid-cols-2 gap-2">
+          <div class="flex flex-col gap-1">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-400">Position X</span>
+              <span id="posx-val" class="font-mono text-slate-300">0px</span>
+            </div>
+            <input id="slider-posx" type="range" min="-300" max="300" value="0" class="slider-cyan" />
+          </div>
+
+          <div class="flex flex-col gap-1">
+            <div class="flex items-center justify-between text-[11px]">
+              <span class="text-slate-400">Position Y</span>
+              <span id="posy-val" class="font-mono text-slate-300">0px</span>
+            </div>
+            <input id="slider-posy" type="range" min="-300" max="300" value="0" class="slider-cyan" />
+          </div>
+        </div>
+
+        <!-- Rotation -->
+        <div class="flex flex-col gap-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-300 font-medium">Rotation</span>
+            <span id="rotate-val" class="font-mono text-cyan-400 font-semibold">0°</span>
+          </div>
+          <input id="slider-rotate" type="range" min="-180" max="180" value="0" class="slider-cyan" />
+        </div>
+
+        <!-- Opacity -->
+        <div class="flex flex-col gap-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-300 font-medium">Opacity</span>
+            <span id="opacity-val" class="font-mono text-cyan-400 font-semibold">100%</span>
+          </div>
+          <input id="slider-opacity" type="range" min="0" max="100" value="100" class="slider-cyan" />
+        </div>
+
+        <!-- Blend Modes -->
+        <div class="flex flex-col gap-1.5">
+          <span class="text-xs text-slate-300 font-medium">Blend Mode</span>
+          <select id="blend-mode-select" class="w-full bg-[#181c28] border border-[#2b334a] rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-cyan-400">
+            <option value="normal">Normal</option>
+            <option value="screen">Screen (Lighten)</option>
+            <option value="multiply">Multiply (Darken)</option>
+            <option value="overlay">Overlay</option>
+            <option value="color-dodge">Color Dodge (Neon Glow)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Tab Content: Color LUT & Grading -->
+      <div id="inspector-tab-color" class="inspector-content p-4 flex-col gap-4 hidden">
+        <!-- Exposure -->
+        <div class="flex flex-col gap-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-300 font-medium">Exposure</span>
+            <span id="exposure-val" class="font-mono text-cyan-400 font-semibold">0</span>
+          </div>
+          <input id="slider-exposure" type="range" min="-50" max="50" value="0" class="slider-cyan" />
+        </div>
+
+        <!-- Contrast -->
+        <div class="flex flex-col gap-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-300 font-medium">Contrast</span>
+            <span id="contrast-val" class="font-mono text-cyan-400 font-semibold">100%</span>
+          </div>
+          <input id="slider-contrast" type="range" min="50" max="180" value="100" class="slider-cyan" />
+        </div>
+
+        <!-- Saturation -->
+        <div class="flex flex-col gap-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-300 font-medium">Saturation</span>
+            <span id="saturation-val" class="font-mono text-cyan-400 font-semibold">100%</span>
+          </div>
+          <input id="slider-saturation" type="range" min="0" max="200" value="100" class="slider-cyan" />
+        </div>
+
+        <!-- Temperature -->
+        <div class="flex flex-col gap-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-300 font-medium">Temperature</span>
+            <span id="temp-val" class="font-mono text-cyan-400 font-semibold">0</span>
+          </div>
+          <input id="slider-temp" type="range" min="-50" max="50" value="0" class="slider-cyan" />
+        </div>
+      </div>
+
+      <!-- Tab Content: Speed & Audio -->
+      <div id="inspector-tab-speed" class="inspector-content p-4 flex-col gap-4 hidden">
+        <!-- Speed Ramp -->
+        <div class="flex flex-col gap-2">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-300 font-medium">Playback Speed</span>
+            <span id="speed-val" class="font-mono text-cyan-400 font-semibold">1.0x</span>
+          </div>
+          <div class="grid grid-cols-4 gap-1.5 text-xs">
+            <button class="speed-btn py-1 rounded bg-[#181c28] border border-[#2b334a] hover:border-cyan-400 text-slate-300" data-speed="0.5">0.5x</button>
+            <button class="speed-btn py-1 rounded bg-cyan-400 text-black font-bold" data-speed="1.0">1.0x</button>
+            <button class="speed-btn py-1 rounded bg-[#181c28] border border-[#2b334a] hover:border-cyan-400 text-slate-300" data-speed="1.5">1.5x</button>
+            <button class="speed-btn py-1 rounded bg-[#181c28] border border-[#2b334a] hover:border-cyan-400 text-slate-300" data-speed="2.0">2.0x</button>
+          </div>
+        </div>
+
+        <!-- Volume Slider -->
+        <div class="flex flex-col gap-1.5">
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-slate-300 font-medium">Audio Volume</span>
+            <span id="vol-val" class="font-mono text-cyan-400 font-semibold">100%</span>
+          </div>
+          <input id="slider-vol" type="range" min="0" max="200" value="100" class="slider-cyan" />
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- BOTTOM TIMELINE SECTION -->
+  <section class="h-64 bg-[#0d0e15] border-t border-[#1f222e] flex flex-col shrink-0 relative z-20">
+    
+    <!-- Timeline Toolbar (Split, Trim, Magnet, Zoom) -->
+    <div class="h-10 bg-[#12141c] border-b border-[#1f222e] px-4 flex items-center justify-between shrink-0">
+      
+      <!-- Left Editing Tools (Razor, Select, Delete) -->
+      <div class="flex items-center gap-1">
+        <!-- Select Tool (V) -->
+        <button id="tool-select-btn" class="px-2.5 py-1 rounded-md bg-[#22283a] text-cyan-400 border border-cyan-500/30 text-xs font-semibold flex items-center gap-1.5 transition" title="Selection Tool (V)">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 3l7 18 3-7 7-3L3 3z"/></svg>
+          <span>Select (V)</span>
+        </button>
+
+        <!-- Razor Cut / Split (C) -->
+        <button id="tool-split-btn" class="px-2.5 py-1 rounded-md hover:bg-[#202538] text-slate-300 hover:text-white text-xs font-medium flex items-center gap-1.5 transition" title="Split at Playhead (C)">
+          <svg class="w-3.5 h-3.5 text-amber-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></svg>
+          <span>Split (C)</span>
+        </button>
+
+        <!-- Delete (Del) -->
+        <button id="tool-delete-btn" class="p-1 rounded-md hover:bg-red-950/50 hover:text-red-400 text-slate-400 transition" title="Delete Clip (Del)">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        </button>
+
+        <div class="h-4 w-px bg-[#262a38] mx-1"></div>
+
+        <!-- Magnet Mode -->
+        <button id="toggle-magnet-btn" class="px-2 py-1 rounded-md bg-[#1d2232] text-cyan-400 text-xs font-medium flex items-center gap-1 transition" title="Auto Ripple Magnet">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 15a6 6 0 0 1 12 0v3h-4v-3a2 2 0 0 0-4 0v3H6v-3z"/><path d="M6 18v3h4v-3"/><path d="M14 18v3h4v-3"/></svg>
+          <span>Magnet ON</span>
+        </button>
+      </div>
+
+      <!-- Right Timeline Zoom & Duration -->
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-1.5 text-xs text-slate-400">
+          <span>Zoom:</span>
+          <button id="zoom-out-btn" class="p-1 rounded hover:bg-[#202538] text-slate-300">-</button>
+          <input id="timeline-zoom-slider" type="range" min="1" max="5" value="2" class="w-20 slider-cyan" />
+          <button id="zoom-in-btn" class="p-1 rounded hover:bg-[#202538] text-slate-300">+</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Timeline Tracks Canvas & Scrub Area -->
+    <div id="timeline-scroll-container" class="flex-1 overflow-x-auto overflow-y-auto relative select-none bg-[#0a0b10]">
+      
+      <!-- Time Ruler Header -->
+      <div id="timeline-ruler" class="h-7 bg-[#10121a] border-b border-[#1f222e] sticky top-0 z-30 cursor-pointer flex items-center px-24">
+        <!-- Ruler tick marks dynamically drawn via JS -->
+      </div>
+
+      <!-- Draggable Playhead Needle Line (Red Bar) -->
+      <div id="playhead-needle" class="absolute top-0 bottom-0 w-px bg-red-500 z-40 pointer-events-none" style="left: 180px;">
+        <div class="w-3 h-3 bg-red-500 rounded-sm -ml-1.5 rotate-45 shadow-lg shadow-red-500/50"></div>
+      </div>
+
+      <!-- Track Rows -->
+      <div class="flex flex-col py-1 gap-1.5 min-w-[1200px]" id="track-rows-wrapper">
+        
+        <!-- TRACK T1: Dynamic Captions & Text -->
+        <div class="track-row flex items-center h-10 relative group">
+          <!-- Track Label Left Column -->
+          <div class="w-24 px-3 flex items-center justify-between text-[11px] font-mono text-slate-400 shrink-0 sticky left-0 bg-[#10121a] z-20 border-r border-[#1f222e] h-full">
+            <span class="text-amber-400 font-bold">T1 Text</span>
+            <svg class="w-3 h-3 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="4 7 4 4 20 4 20 7"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+          </div>
+          <!-- Track Lane -->
+          <div class="track-lane flex-1 h-full bg-[#131622]/40 rounded-md relative flex items-center" id="lane-text">
+            <!-- Dynamic Text Clip -->
+            <div id="clip-text-1" class="timeline-clip text-clip absolute h-8 rounded-md bg-amber-500/20 border border-amber-500/60 px-3 flex items-center justify-between text-xs font-semibold text-amber-200 cursor-pointer" style="left: 40px; width: 220px;" data-clip-id="text-1">
+              <span class="truncate">Viral Subtitle: "Wait for the end..."</span>
+              <div class="clip-handle left-handle"></div>
+              <div class="clip-handle right-handle"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRACK V2: B-Roll & Overlay -->
+        <div class="track-row flex items-center h-12 relative group">
+          <div class="w-24 px-3 flex items-center justify-between text-[11px] font-mono text-slate-400 shrink-0 sticky left-0 bg-[#10121a] z-20 border-r border-[#1f222e] h-full">
+            <span class="text-fuchsia-400 font-bold">V2 Overlay</span>
+            <svg class="w-3 h-3 text-slate-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+          </div>
+          <div class="track-lane flex-1 h-full bg-[#131622]/40 rounded-md relative flex items-center" id="lane-v2">
+            <!-- Overlay Clip -->
+            <div id="clip-v2-1" class="timeline-clip overlay-clip absolute h-10 rounded-md bg-fuchsia-600/30 border border-fuchsia-500/80 px-3 flex items-center justify-between text-xs font-semibold text-fuchsia-200 cursor-pointer" style="left: 180px; width: 140px;" data-clip-id="v2-1">
+              <span class="truncate">Cyber Glitch FX</span>
+              <div class="clip-handle left-handle"></div>
+              <div class="clip-handle right-handle"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRACK V1: Main Video -->
+        <div class="track-row flex items-center h-14 relative group">
+          <div class="w-24 px-3 flex items-center justify-between text-[11px] font-mono text-slate-400 shrink-0 sticky left-0 bg-[#10121a] z-20 border-r border-[#1f222e] h-full">
+            <span class="text-cyan-400 font-bold">V1 Video</span>
+            <svg class="w-3 h-3 text-cyan-400" viewBox="0 0 24 24" fill="currentColor"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          </div>
+          <div class="track-lane flex-1 h-full bg-[#131622]/60 rounded-md relative flex items-center" id="lane-v1">
+            <!-- Main Video Clip 1 -->
+            <div id="clip-v1-1" class="timeline-clip video-clip selected absolute h-12 rounded-md bg-gradient-to-r from-cyan-900/60 to-blue-900/60 border-2 border-cyan-400 px-3 flex items-center justify-between text-xs font-bold text-white cursor-pointer shadow-lg shadow-cyan-500/10" style="left: 0px; width: 280px;" data-clip-id="v1-1">
+              <div class="flex items-center gap-1.5 truncate">
+                <span class="w-2 h-2 rounded-full bg-cyan-400"></span>
+                <span class="truncate">Cyberpunk City Night.mp4</span>
+              </div>
+              <span class="text-[10px] font-mono text-cyan-300">00:08</span>
+              <div class="clip-handle left-handle"></div>
+              <div class="clip-handle right-handle"></div>
+            </div>
+
+            <!-- Main Video Clip 2 -->
+            <div id="clip-v1-2" class="timeline-clip video-clip absolute h-12 rounded-md bg-gradient-to-r from-blue-900/40 to-indigo-900/40 border border-blue-500/50 px-3 flex items-center justify-between text-xs font-bold text-white cursor-pointer" style="left: 284px; width: 240px;" data-clip-id="v1-2">
+              <div class="flex items-center gap-1.5 truncate">
+                <span class="w-2 h-2 rounded-full bg-blue-400"></span>
+                <span class="truncate">Ocean Sunset Drone.mp4</span>
+              </div>
+              <span class="text-[10px] font-mono text-blue-300">00:06</span>
+              <div class="clip-handle left-handle"></div>
+              <div class="clip-handle right-handle"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- TRACK A1: Background Music & Audio Waveform -->
+        <div class="track-row flex items-center h-10 relative group">
+          <div class="w-24 px-3 flex items-center justify-between text-[11px] font-mono text-slate-400 shrink-0 sticky left-0 bg-[#10121a] z-20 border-r border-[#1f222e] h-full">
+            <span class="text-emerald-400 font-bold">A1 Audio</span>
+            <svg class="w-3 h-3 text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 18V5l12-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="18" cy="16" r="3"/></svg>
+          </div>
+          <div class="track-lane flex-1 h-full bg-[#131622]/40 rounded-md relative flex items-center" id="lane-a1">
+            <!-- Audio Clip with SVG Waveform -->
+            <div id="clip-a1-1" class="timeline-clip audio-clip absolute h-8 rounded-md bg-emerald-950/60 border border-emerald-500/60 px-3 flex items-center justify-between text-xs font-semibold text-emerald-200 cursor-pointer overflow-hidden" style="left: 0px; width: 450px;" data-clip-id="a1-1">
+              <span class="truncate z-10">Phonk Viral Beat.mp3</span>
+              <!-- Waveform visualization graphic -->
+              <svg class="absolute inset-0 w-full h-full opacity-30 text-emerald-400" preserveAspectRatio="none" viewBox="0 0 100 20">
+                <path d="M0 10 Q 5 2, 10 10 T 20 10 T 30 18 T 40 4 T 50 16 T 60 2 T 70 14 T 80 6 T 90 12 T 100 10" fill="none" stroke="currentColor" stroke-width="2"/>
+              </svg>
+              <div class="clip-handle left-handle"></div>
+              <div class="clip-handle right-handle"></div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </section>
+
+  <!-- EXPORT 4K MODAL (Clean, Zero Paywalls, High Performance) -->
+  <div id="export-modal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-lg bg-[#141622] border border-[#2b334a] rounded-2xl p-6 shadow-2xl flex flex-col gap-5">
+      <div class="flex items-center justify-between border-b border-[#232838] pb-3">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-cyan-400/20 text-cyan-400 flex items-center justify-center">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Export Video</h3>
+            <p class="text-[10px] text-cyan-400 font-medium">No Watermark • 100% Free Hardware Rendering</p>
+          </div>
+        </div>
+        <button id="close-export-modal-btn" class="p-1 rounded-lg hover:bg-[#202538] text-slate-400 hover:text-white transition">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+        </button>
+      </div>
+
+      <!-- Settings Grid -->
+      <div class="grid grid-cols-2 gap-4 text-xs">
+        <!-- Resolution -->
+        <div class="flex flex-col gap-1.5">
+          <span class="text-slate-400 font-medium">Resolution</span>
+          <select id="export-res" class="bg-[#1b1f2e] border border-[#2d344b] rounded-lg px-3 py-2 text-white font-medium focus:outline-none focus:border-cyan-400">
+            <option value="4k">4K Ultra HD (3840 x 2160)</option>
+            <option value="2k">2K Quad HD (2560 x 1440)</option>
+            <option value="1080p" selected>1080p Full HD (1080 x 1920)</option>
+            <option value="720p">720p HD (720 x 1280)</option>
+          </select>
+        </div>
+
+        <!-- Frame Rate -->
+        <div class="flex flex-col gap-1.5">
+          <span class="text-slate-400 font-medium">Frame Rate</span>
+          <select id="export-fps" class="bg-[#1b1f2e] border border-[#2d344b] rounded-lg px-3 py-2 text-white font-medium focus:outline-none focus:border-cyan-400">
+            <option value="60" selected>60 FPS (Ultra Smooth)</option>
+            <option value="30">30 FPS (Standard)</option>
+            <option value="24">24 FPS (Cinematic)</option>
+          </select>
+        </div>
+
+        <!-- Format -->
+        <div class="flex flex-col gap-1.5">
+          <span class="text-slate-400 font-medium">Format Codec</span>
+          <select id="export-format" class="bg-[#1b1f2e] border border-[#2d344b] rounded-lg px-3 py-2 text-white font-medium focus:outline-none focus:border-cyan-400">
+            <option value="mp4" selected>MP4 (H.264 / AAC)</option>
+            <option value="webm">WebM (VP9 / Opus)</option>
+            <option value="gif">Animated GIF</option>
+          </select>
+        </div>
+
+        <!-- Quality / Bitrate -->
+        <div class="flex flex-col gap-1.5">
+          <span class="text-slate-400 font-medium">Encoding Bitrate</span>
+          <select id="export-bitrate" class="bg-[#1b1f2e] border border-[#2d344b] rounded-lg px-3 py-2 text-white font-medium focus:outline-none focus:border-cyan-400">
+            <option value="high" selected>High (32 Mbps - Maximum Quality)</option>
+            <option value="medium">Recommended (16 Mbps)</option>
+            <option value="compact">Compact (8 Mbps)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Export Render Progress Indicator -->
+      <div id="render-progress-box" class="flex flex-col gap-2 p-3 rounded-xl bg-[#0f1118] border border-[#202538] hidden">
+        <div class="flex items-center justify-between text-xs">
+          <span id="render-status-text" class="text-cyan-400 font-bold">Rendering frames via WebCodecs...</span>
+          <span id="render-pct" class="font-mono text-white font-bold">0%</span>
+        </div>
+        <div class="w-full h-2 rounded-full bg-[#1b1f2e] overflow-hidden">
+          <div id="render-progress-bar" class="h-full bg-gradient-to-r from-cyan-400 to-blue-500 w-0 transition-all duration-150"></div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex items-center justify-end gap-3 pt-2">
+        <button id="cancel-export-btn" class="px-4 py-2 rounded-lg bg-[#1a1e2b] hover:bg-[#222738] text-slate-300 font-semibold text-xs transition">Cancel</button>
+        <button id="start-export-btn" class="px-5 py-2 rounded-lg bg-gradient-to-r from-[#00f2fe] to-[#4facfe] text-black font-bold text-xs tracking-wide hover:brightness-110 active:scale-95 transition shadow-lg shadow-[#00f2fe]/20">Start Fast Render</button>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="/src/main.js"></script>
+</body>
+</html>

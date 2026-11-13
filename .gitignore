@@ -1,0 +1,16 @@
+# Build outputs
+builds/
+dist/
+target/
+*.apk
+*.aab
+
+# Dependencies
+node_modules/
+vendor/
+
+# Secrets and environment
+.env
+.env.*
+*.pem
+*.key
